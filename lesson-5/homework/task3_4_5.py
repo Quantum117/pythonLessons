@@ -31,7 +31,7 @@ class Tasks :
             return lst[(n+1)//2 -1]
     @staticmethod
     def is_prime(n):
-        k =sum( [1 for i in range(1, n + 1) if n % i == 0])
+        k =sum( [1 for i in range(1, int(n **0.5)) if n % i == 0])+1
         if k>2 :
            return  False
         else :
@@ -61,5 +61,5 @@ print(f"Tuition mean: $ {round(Tasks.mean(tuition), 2):,}")
 print(f"Tuition median: $ {Tasks.median(tuition):,}")
 
 # task5
-print(Tasks.is_prime(17))
+print(Tasks.is_prime(37))
 # Output: True

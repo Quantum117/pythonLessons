@@ -23,5 +23,6 @@ class TemperatureApp :
         print(f"{temp} degrees F = {res_c} degrees C")
     except ValueError:
         print("Invalid input. Please enter numeric values")
+
 TemperatureApp.convert_far_to_cel()
 TemperatureApp.convert_cel_to_far()
