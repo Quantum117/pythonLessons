@@ -9,6 +9,7 @@ def ensure_file_exists():
         with open(FILE_NAME, 'w'):
             pass
 
+
 # Add a new employee record
 def add_employee():
     employee_id = input("Enter Employee ID: ").strip()
