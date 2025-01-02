@@ -1,4 +1,4 @@
-from TaskManager import *
+from TaskManager import  TaskManager
 from json_handler import JSONHandler
 from csv_handler import CSVHandler
 '''
