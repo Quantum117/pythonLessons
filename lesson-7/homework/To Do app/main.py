@@ -2,11 +2,13 @@ from TaskManager import *
 from json_handler import JSONHandler
 from csv_handler import CSVHandler
 '''
-I wrote different handlers for json(json_handler) and csv(csv_handler) files in different modules .
-TaskManager class has two methods that accepts handler object as an argument 
-and calls appropriate method of handler object.Each handler class must have load() and save() methods. 
-So in this way our program is flexible and independent of file format. If we want to add a support for  
-new file format we only need to add new handler class with load and save methods and change main function a little .
+    I wrote different handlers for json(json_handler) and csv(csv_handler) files in different modules .
+    TaskManager class has two methods that accepts handler object as an argument 
+    and calls appropriate method of handler object.Each handler class must have load() and save() methods. 
+    This is ensured by creating abstract class (with save() and load() abstract methods ) 
+    that each file handler class must inherit from.
+    So in this way our program is flexible and independent of file format. If we want to add a support for  
+    new file format we only need to add new handler class with load and save methods and change main function a little .
 '''
 def main():
 
@@ -63,6 +65,7 @@ def main():
 
         elif choice == '6':
             task_manager.save_tasks(handler)
+
         elif choice == '7':
             task_manager.load_tasks(handler)
 

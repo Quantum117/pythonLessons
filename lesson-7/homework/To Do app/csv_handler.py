@@ -1,6 +1,7 @@
 import csv
 from TaskManager import Task
 from abstract_class import StorageInterface
+
 class CSVHandler(StorageInterface):
     def __init__(self, file_name):
         self.file_name = file_name
