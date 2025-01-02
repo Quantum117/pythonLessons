@@ -1,0 +1,30 @@
+[
+    {
+        "task_id": 2,
+        "title": "read",
+        "description": "read antifragile",
+        "status": "in progress",
+        "due_date": "2025-03-01"
+    },
+    {
+        "task_id": 3,
+        "title": "learn python",
+        "description": "learn python from python crash course",
+        "status": "pending",
+        "due_date": "2025-06-01"
+    },
+    {
+        "task_id": 5,
+        "title": "calculus",
+        "description": "calculus chapter 3 & 5",
+        "status": "completed",
+        "due_date": "2025-01-08"
+    },
+    {
+        "task_id": 6,
+        "title": "linear algebra",
+        "description": "gelfand read chapter 3&7",
+        "status": "pending",
+        "due_date": "2025-01-18"
+    }
+]

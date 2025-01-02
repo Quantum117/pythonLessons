@@ -1,0 +1,8 @@
+Word Count Report
+Total Words : 70
+Top 5 Words:
+python - 6 
+and - 6 
+is - 4 
+programming - 3 
+to - 3 
