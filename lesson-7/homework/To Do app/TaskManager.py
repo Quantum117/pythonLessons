@@ -43,8 +43,27 @@ class Task:
             due_date=datetime.strptime(data["due_date"], '%Y-%m-%d')
         )
 
-
 class TaskManager:
+    """
+    TaskManager class provides functionality to manage a list of tasks, including viewing,
+    adding, removing, updating, and filtering tasks. Tasks are uniquely identified by
+    incremental IDs. The class also provides methods to save and load tasks using file
+    handlers, as well as utilities for creating and fetching tasks. Tasks can be filtered
+    by their status, such as Pending, In Progress, or Completed.
+
+    This class is intended for managing task-related operations and is designed to work
+    with an external `Task` object and a `Status` enumeration.
+
+    :ivar tasks: List of Task objects managed by the TaskManager.
+    :type tasks: list[Task]
+    :ivar next_id: Incremental ID to uniquely identify new tasks.
+    :type next_id: int
+
+    two methods that work with handlers also independent of file format handler
+    as each handler should have load and save methods.
+    Other methods are independent of handler and works with Task objects and list of Task objects .
+    In this way TaskManager can be used with any file format handler without changes at all.
+    """
     def __init__(self):
         self.tasks = []  # List to store Task objects
         self.next_id = 1  # Incremental ID for new tasks
