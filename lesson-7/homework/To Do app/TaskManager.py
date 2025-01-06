@@ -122,9 +122,13 @@ class TaskManager:
 
     def load_tasks(self, handler):
         """Load tasks using a specific file format handler."""
-        self.tasks = handler.load()
-        self.next_id = max((task.task_id for task in self.tasks), default=0) + 1
-        print("Tasks loaded successfully.")
+        try:
+            self.tasks = handler.load()
+            self.next_id = max((task.task_id for task in self.tasks), default=0) + 1
+            print("Tasks loaded successfully.")
+            print(f"Tasks successfully loaded from {handler.filename}.")
+        except Exception as e:
+            print(f"Failed to load tasks: {e}")
 
     @staticmethod
     def get_task_id():

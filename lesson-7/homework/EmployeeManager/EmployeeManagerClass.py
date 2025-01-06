@@ -38,10 +38,11 @@ Classes:
         - `str_to_employee(line)`: (Static) Converts a string representation of an employee to an `Employee` object.
         - `file_to_list(self)`: Reads the file and converts its content into a list of `Employee` objects.
 """
+import os
 
-# Employee class , encapsulates individual employee data in it
+# Employee class, encapsulates individual employee data
 class Employee:
-    def __init__(self, employee_id , name, position, salary):
+    def __init__(self, employee_id, name, position, salary):
         self.employee_id = int(employee_id)
         self.name = name
         self.position = position
@@ -58,16 +59,13 @@ class EmployeeManager:
             with open(self.filename, 'w'):
                 pass
 
-
-    def add_employee(self, employee:Employee):
-        employee_id : int = employee.employee_id
-        name = employee.name
-        position = employee.position
-        salary = employee.salary
+    # Add a new employee to the file
+    def add_employee(self, employee: Employee):
         with open(self.filename, 'a') as file:
-            file.write(f"{employee_id}, {name}, {position}, {salary}\n")
+            file.write(f"{employee.employee_id},{employee.name},{employee.position},{employee.salary}\n")
         print("Employee added successfully!\n")
 
+    # View all employee records
     def view_employees(self):
         with open(self.filename, 'r') as file:
             records = file.readlines()
@@ -79,6 +77,7 @@ class EmployeeManager:
             print("No employee records found.")
         print()
 
+    # Sort employee records based on user choice
     def sort_employees(self):
         print("Choose a sorting option:")
         print("1. Sort by Salary (Ascending)")
@@ -89,23 +88,24 @@ class EmployeeManager:
 
         choice = input("Enter your choice (1-5): ").strip()
         employees = self.file_to_list()
+
         if choice == "1":
             sorted_employees = sorted(employees, key=lambda emp: emp.salary)
         elif choice == "2":
             sorted_employees = sorted(employees, key=lambda emp: emp.salary, reverse=True)
         elif choice == "3":
-            sorted_employees = sorted(employees, key=lambda emp: emp.title)
+            sorted_employees = sorted(employees, key=lambda emp: emp.name)
         elif choice == "4":
-            sorted_employees = sorted(employees, key=lambda emp: emp.title, reverse=True)
+            sorted_employees = sorted(employees, key=lambda emp: emp.name, reverse=True)
         elif choice == "5":
-            sorted_employees = sorted(employees, key=lambda emp: (emp.salary, emp.title))
+            sorted_employees = sorted(employees, key=lambda emp: (emp.salary, emp.name))
         else:
             print("Invalid choice. No sorting performed.")
             return
 
         print("\nSorted Employees:")
-        for item in sorted_employees:
-            print(item)
+        for employee in sorted_employees:
+            print(employee)
 
     # Search for an employee by ID
     def search_employee(self):
@@ -114,63 +114,67 @@ class EmployeeManager:
             for line in file:
                 if line.startswith(search_id + ","):
                     print("Employee Found:", line.strip())
-                    break
-            else:
-                print("Employee not found.")
-        print()
+                    return
+        print("Employee not found.\n")
 
-
+    # Update an employee record
     def update_employee(self):
         search_id = input("Enter Employee ID to update: ").strip()
         updated = False
-        with open(self.filename, 'r') as file:
-            records = file.readlines()
-        with open(self.filename, 'w') as file:
-            for line in records:
-                if line.startswith(search_id + ","):
-                    print("Current Record:", line.strip())
-                    employee = self.make_employee_object()
-                    file.write(f"{employee.employee_id},{employee.name},{employee.position},{employee.salary}\n")
+
+        def update_line(line):
+            if line.startswith(search_id + ","):
+                print("Current Record:", line.strip())
+                employee = self.make_employee_object()
+                return f"{employee.employee_id},{employee.name},{employee.position},{employee.salary}\n"
+            return line
+
+        with open(self.filename, 'r+') as file:
+            lines = file.readlines()
+            file.seek(0)
+            file.truncate()
+            for line in lines:
+                new_line = update_line(line)
+                file.write(new_line)
+                if line != new_line:
                     updated = True
-                    print("Employee record updated!\n")
-                else:
-                    file.write(line)
-        if not updated:
+
+        if updated:
+            print("Employee record updated!\n")
+        else:
             print("Employee not found.\n")
 
     # Delete an employee record
     def delete_employee(self):
         search_id = input("Enter Employee ID to delete: ").strip()
         deleted = False
-        with open(self.filename, 'r') as file:
-            records = file.readlines()
-        with open(self.filename, 'w') as file:
-            for line in records:
+
+        with open(self.filename, 'r+') as file:
+            lines = file.readlines()
+            file.seek(0)
+            file.truncate()
+            for line in lines:
                 if line.startswith(search_id + ","):
                     deleted = True
                     print("Employee record deleted!\n")
                 else:
                     file.write(line)
+
         if not deleted:
             print("Employee not found.\n")
 
+    # Check if an employee ID is unique
     def unique_id(self, _id: int):
-        employees = self.file_to_list()
-        employee_ids = (emp.employee_id for emp in employees)
-        if _id in employee_ids:
-            return False
-        else:
-            return True
+        return all(emp.employee_id != _id for emp in self.file_to_list())
 
-
+    # Create an Employee object from user input
     def make_employee_object(self):
-
         try:
             employee_id = input("Enter Employee ID (numeric): ").strip()
             if not employee_id.isdigit():
                 raise ValueError("Employee ID must be numeric.")
 
-            if not self.unique_id( int(employee_id)):
+            if not self.unique_id(int(employee_id)):
                 raise ValueError("Employee ID already exists.")
 
             name = input("Enter Name: ").strip()
@@ -182,32 +186,22 @@ class EmployeeManager:
                 raise ValueError("Position cannot be empty.")
 
             salary = input("Enter Salary (numeric): ").strip()
-            if not salary.isdigit():
+            if not salary.replace('.', '', 1).isdigit():
                 raise ValueError("Salary must be numeric.")
 
             return Employee(employee_id, name, position, float(salary))
 
         except ValueError as e:
             print(f"Invalid input: {e}. Please try again.")
+            return None
 
-
+    # Convert a line of text to an Employee object
     @staticmethod
-    def save_employee_to_file( employee: Employee, filename):
-        try:
-            with open(filename, "a") as file:
-                file.write(f"{employee.employee_id},{employee.name},{employee.position},{employee.salary}\n")
-            print("Employee saved successfully.")
-        except IOError as e:
-            print(f"File operation failed: {e}")
-
-    @staticmethod
-    def str_to_employee (line: str):
+    def str_to_employee(line: str):
         employee_id, name, position, salary = line.split(",")
-        return Employee(employee_id.strip(), name.strip(), position.strip(), salary.strip())
+        return Employee(employee_id.strip(), name.strip(), position.strip(), float(salary.strip()))
 
-    def file_to_list (self):
-        records = []
+    # Load all employees from the file into a list
+    def file_to_list(self):
         with open(self.filename, "r") as file:
-            for line in file:
-                records.append(self.str_to_employee(line))
-        return records
+            return [self.str_to_employee(line) for line in file]

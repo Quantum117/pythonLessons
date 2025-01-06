@@ -69,11 +69,18 @@ def main():
         elif choice == '7':
             task_manager.load_tasks(handler)
 
+
         elif choice == '8':
+
+            save_choice = input("Do you want to save changes before exiting? (yes/no): ").strip().lower()
+
+            if save_choice in ["yes", "y"]:
+                task_manager.save_tasks(handler)
+
             print("Goodbye!")
-            # save tasks before exiting
-            task_manager.save_tasks(handler)
+
             break
+
         else:
             print("Invalid choice. Please try again.\n")
 
