@@ -20,13 +20,25 @@ class CSVHandler(StorageInterface):
             print(f"Unexpected error while saving tasks to CSV: {e}")
 
     def load(self):
+        import csv
         try:
-            with open(self.file_name, 'r') as f:
-                reader = csv.DictReader(f)
-                return [Task.from_dict(row) for row in reader]
+            tasks = []
+            with open(self.file_name, mode='r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    # Convert each row (a dictionary) into a Task object
+                    task_data = {
+                        "task_id": int(row["task_id"]),
+                        "title": row["title"],
+                        "description": row["description"],
+                        "status": row["status"],
+                        "due_date": row["due_date"],
+                    }
+                    tasks.append(Task.from_dict(task_data))
+            return tasks
         except FileNotFoundError:
-            print(f"File '{self.file_name}' not found. Starting with an empty task list.")
-            return []  # Return an empty list if file doesn't exist
+            print(f"File not found: {self.filename}. Starting with an empty task list.")
+            return []  # Return an empty list if the file doesn't exist
         except csv.Error as e:
             print(f"Error reading CSV file: {e}. Starting with an empty task list.")
             return []  # Return an empty list if CSV is malformed
