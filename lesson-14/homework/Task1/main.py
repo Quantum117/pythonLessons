@@ -11,6 +11,7 @@ class Weather :
         self.day = day
         self.temperature = temperature
         self.day = day
+        
 # Extract rows from the table body
 table = soup.find('tbody')
 rows = table.find_all('tr')
