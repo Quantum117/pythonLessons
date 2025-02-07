@@ -1,1 +1,0 @@
-print("hello :fist , :last ", {'fist':'Iskandar', 'last':'Buriyev'})
