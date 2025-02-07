@@ -1,6 +1,8 @@
 
 def create_table(cursor):
-    cursor.execute("""CREATE TABLE Roster (
+    cursor.execute("""
+    
+             CREATE TABLE Roster (
                    Name text,
                    Species text,
                    Age integer

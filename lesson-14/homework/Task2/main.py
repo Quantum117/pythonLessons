@@ -1,32 +1,93 @@
-from bs4 import  BeautifulSoup
-import  requests
+import requests
+from bs4 import BeautifulSoup
 import sqlite3
+import csv
 
-base_Url = 'https://realpython.github.io/fake-jobs/'
+DB_FILE = "jobs.db"
+JOBS_URL = "https://realpython.github.io/fake-jobs"
 
-# get html content from base url
-html = requests.get(base_Url)
-soup = BeautifulSoup(html.text, 'html.parser')
-# every job is located inside a tag so we get all of them
-a = soup.find_all('a')
 
-# getting job urls from a tags in every job
-urls = [item['href'] for item in a if item.text == 'Apply']
+# Create database connection
+def create_db():
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS jobs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        title TEXT,
+                        company TEXT,
+                        location TEXT,
+                        description TEXT,
+                        apply_link TEXT,
+                        UNIQUE(title, company, location)
+                    )''')
+    conn.commit()
+    conn.close()
 
-# jobs list
-jobs =[]
+# Scrape job listings
+def scrape_jobs():
+    response = requests.get(JOBS_URL)
+    soup = BeautifulSoup(response.text, "html.parser")
+    job_listings = []
 
-# looping through every job url
-for url in urls :
-    content = requests.get(url)
-    b_soup = BeautifulSoup(content.text, 'html.parser')
-    title = b_soup.find('h1', class_ = "title is-2").text
-    company = b_soup.find('h2', class_ = "subtitle is-4 company").text
-    description = b_soup.find('div', class_ = "content").find('p').text
-    location = b_soup.find('p', id = 'location').text.replace("Location: ", '')
-    date = b_soup.find('p', id = 'date').text.replace("Posted: ", '')
-    jobs.append({'title': title, 'description': description, 'location': location, 'date': date})
+    for job_card in soup.find_all("div", class_="card-content"):
+        title = job_card.find("h2", class_="title").get_text(strip=True)
+        company = job_card.find("h3", class_="company").get_text(strip=True)
+        location = job_card.find("p", class_="location").get_text(strip=True)
+        description = job_card.find("div", class_="description")
+        description_text = description.get_text(strip=True) if description else "No description available"
+        apply_link = job_card.find("a", string="Apply")
+        apply_url = apply_link["href"] if apply_link else "No link available"
 
-#print items from jobs
-for item in jobs:
-    print(item)
+        job_listings.append((title, company, location, description_text, apply_url))
+
+    return job_listings
+
+
+# Store jobs in SQLite with incremental loading
+def store_jobs(job_listings):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+
+    for job in job_listings:
+        cursor.execute('''INSERT INTO jobs (title, company, location, description, apply_link)
+                          VALUES (?, ?, ?, ?, ?)
+                          ON CONFLICT(title, company, location) DO UPDATE 
+                          SET description=excluded.description, apply_link=excluded.apply_link''', job)
+
+    conn.commit()
+    conn.close()
+
+# Filter jobs by location or company
+def filter_jobs(location=None, company=None):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    query = "SELECT title, company, location, description, apply_link FROM jobs WHERE 1=1"
+    params = []
+
+    if location:
+        query += " AND location=?"
+        params.append(location)
+    if company:
+        query += " AND company=?"
+        params.append(company)
+
+    cursor.execute(query, params)
+    results = cursor.fetchall()
+    conn.close()
+
+    return results
+
+# Export filtered results to CSV
+def export_to_csv(results, filename="filtered_jobs.csv"):
+    with open(filename, "w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Job Title", "Company", "Location", "Description", "Application Link"])
+        writer.writerows(results)
+    print(f"Exported to {filename}")
+
+# Run the script
+if __name__ == "__main__":
+    create_db()
+    jobs = scrape_jobs()
+    store_jobs(jobs)
+    print("Job listings updated.")
