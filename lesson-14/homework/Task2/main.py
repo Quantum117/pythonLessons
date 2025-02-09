@@ -6,7 +6,6 @@ import csv
 DB_FILE = "jobs.db"
 JOBS_URL = "https://realpython.github.io/fake-jobs"
 
-
 # Create database connection
 def create_db():
     conn = sqlite3.connect(DB_FILE)
@@ -74,7 +73,6 @@ def filter_jobs(location=None, company=None):
     cursor.execute(query, params)
     results = cursor.fetchall()
     conn.close()
-
     return results
 
 # Export filtered results to CSV

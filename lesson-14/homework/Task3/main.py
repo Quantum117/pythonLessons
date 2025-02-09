@@ -43,7 +43,6 @@ def scrape_laptops():
 
     return laptops
 
-
 # Save data to JSON
 def save_to_json(data, filename="laptops.json"):
     with open(filename, "w", encoding="utf-8") as file:
